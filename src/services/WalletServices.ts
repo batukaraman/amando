@@ -1,16 +1,27 @@
 import Web3 from "web3";
 import CryptoJS from "crypto-js";
-import bip39 from "bip39";
+import * as bip39 from "bip39";
 import HDKey from "hdkey";
 import bcrypt from "bcryptjs";
 import axios from "axios";
 
 declare global {
   interface Window {
-    ethereum: any;
-    BinanceChain: any;
+    ethereum:
+      | { isMetaMask?: boolean; request: (args: any) => Promise<any> }
+      | undefined;
+    BinanceChain:
+      | { isConnected?: boolean; request: (args: any) => Promise<any> }
+      | undefined;
   }
 }
+
+interface Web3ProviderInfo {
+  name: string;
+  provider: any;
+}
+
+type Web3Providers = Map<string, Web3ProviderInfo>;
 
 const ERC20_ABI = [
   {
@@ -33,9 +44,7 @@ const ERC20_ABI = [
 ];
 
 interface TokenPrice {
-  [address: string]: {
-    usd: number;
-  };
+  [address: string]: { usd: number };
 }
 
 interface TokenAsset {
@@ -101,12 +110,12 @@ export interface ImportWalletResult {
 const connectMetaMask = async (): Promise<string | null> => {
   try {
     const providers = await Web3.requestEIP6963Providers();
-    for (const [key, value] of providers) {
+    for (const [_, value] of providers) {
       if (
         (value.provider as any).isMetaMask ||
         value.info.name === "MetaMask"
       ) {
-        const web3 = new Web3(value.provider);
+        new Web3(value.provider);
         const accounts = (await value.provider.request({
           method: "eth_requestAccounts",
         })) as string[];
@@ -127,12 +136,12 @@ const connectMetaMask = async (): Promise<string | null> => {
 const connectTrustWallet = async (): Promise<string | null> => {
   try {
     const providers = await Web3.requestEIP6963Providers();
-    for (const [key, value] of providers) {
+    for (const [_, value] of providers) {
       if (
         (value.provider as any).isTrustWallet ||
         value.info.name === "Trust Wallet"
       ) {
-        const web3 = new Web3(value.provider);
+        new Web3(value.provider);
         const accounts = (await value.provider.request({
           method: "eth_requestAccounts",
         })) as string[];
@@ -174,12 +183,12 @@ const connectBinanceWallet = async (): Promise<string | null> => {
 const connectCoinbaseWallet = async (): Promise<string | null> => {
   try {
     const providers = await Web3.requestEIP6963Providers();
-    for (const [key, value] of providers) {
+    for (const [_, value] of providers) {
       if (
         (value.provider as any).isCoinbaseWallet ||
         value.info.name === "Coinbase Wallet"
       ) {
-        const web3 = new Web3(value.provider);
+        new Web3(value.provider);
         const accounts = (await value.provider.request({
           method: "eth_requestAccounts",
         })) as string[];
@@ -221,7 +230,7 @@ export const createWallet = async (
 
     const privateKeyHex = privateKey.toString("hex");
 
-    const web3 = new Web3();
+    const web3: Web3 = new Web3();
     const account = web3.eth.accounts.privateKeyToAccount("0x" + privateKeyHex);
 
     const encryptedPrivateKey = CryptoJS.AES.encrypt(
@@ -266,11 +275,11 @@ const importWalletWithPrivateKey = async (
       throw new Error("Private key is required.");
     }
 
-    let formattedPrivateKey = privateKey.startsWith("0x")
+    const formattedPrivateKey = privateKey.startsWith("0x")
       ? privateKey
       : "0x" + privateKey;
 
-    const web3 = new Web3();
+    const web3: Web3 = new Web3();
     const account = web3.eth.accounts.privateKeyToAccount(formattedPrivateKey);
 
     console.log("Imported Wallet Address with Private Key:", account.address);
@@ -313,7 +322,7 @@ const importWalletWithRecoveryPhrase = async (
 
     const privateKeyHex = privateKey.toString("hex");
 
-    const web3 = new Web3();
+    const web3: Web3 = new Web3();
     const account = web3.eth.accounts.privateKeyToAccount("0x" + privateKeyHex);
 
     console.log(
@@ -417,7 +426,7 @@ export const simulateTransaction = async (
   input: SimulateTransactionInput
 ): Promise<SimulateTransactionResult> => {
   try {
-    const web3 = new Web3();
+    const web3: Web3 = new Web3();
 
     const tx = {
       from: input.from,
@@ -517,21 +526,29 @@ export const getWalletAssetsWithPrice = async (
         .balanceOf(address)
         .call();
 
-      const tokenSymbol = tokenContract.methods.symbol
-        ? await tokenContract.methods.symbol().call()
-        : "Unknown";
+      const tokenSymbol = await tokenContract.methods
+        .symbol()
+        .call()
+        .catch(() => "Unknown");
+      if (typeof tokenSymbol === "string") {
+        if (tokenBalance && typeof tokenBalance === "string") {
+          const balanceInEther = web3.utils.fromWei(tokenBalance, "ether");
 
-      const balanceInEther = web3.utils.fromWei(tokenBalance, "ether");
+          const tokenPrice = tokenPrices[tokenAddress.toLowerCase()]?.usd || 0;
 
-      const tokenPrice = tokenPrices[tokenAddress.toLowerCase()]?.usd || 0;
-
-      assets.tokens.push({
-        tokenAddress,
-        tokenSymbol,
-        balance: balanceInEther,
-        price: tokenPrice,
-        totalValue: (parseFloat(balanceInEther) * tokenPrice).toFixed(2),
-      });
+          assets.tokens.push({
+            tokenAddress,
+            tokenSymbol,
+            balance: balanceInEther,
+            price: tokenPrice,
+            totalValue: (parseFloat(balanceInEther) * tokenPrice).toFixed(2),
+          });
+        } else {
+          console.error("Invalid token balance");
+        }
+      } else {
+        console.error("Invalid token symbol");
+      }
     }
 
     return assets;

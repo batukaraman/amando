@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import bip39 from "bip39";
+import * as bip39 from "bip39";
 
 interface WalletState {
   password: string | null;

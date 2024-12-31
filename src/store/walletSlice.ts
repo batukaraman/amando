@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface WalletState {
   name: string | null;
@@ -10,27 +10,20 @@ const initialState: WalletState = {
   address: null,
 };
 
-const loadWalletFromLocalStorage = (): WalletState => {
-  const walletData = localStorage.getItem('wallet');
-  if (walletData) {
-    return JSON.parse(walletData);
-  }
-  return initialState;
-};
-
 const walletSlice = createSlice({
-  name: 'wallet',
-  initialState: loadWalletFromLocalStorage(),
+  name: "wallet",
+  initialState,
   reducers: {
-    setWallet: (state, action: PayloadAction<{ name: string; address: string }>) => {
+    setWallet: (
+      state,
+      action: PayloadAction<{ name: string; address: string }>
+    ) => {
       state.name = action.payload.name;
       state.address = action.payload.address;
-      localStorage.setItem('wallet', JSON.stringify(state));
     },
     clearWallet: (state) => {
       state.name = null;
       state.address = null;
-      localStorage.removeItem('wallet');
     },
   },
 });

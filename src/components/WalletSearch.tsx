@@ -1,6 +1,5 @@
 import wallets from "@/data/wallets";
 import ArrowRight from "@/icons/ArrowRight";
-import AM from "@/icons/coin/AM";
 import Search from "@/icons/Search";
 import Link from "next/link";
 

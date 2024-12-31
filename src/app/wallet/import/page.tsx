@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import wallets, { IWallet } from "@/data/wallets";
 import WalletSearch from "@/components/WalletSearch";
@@ -17,10 +17,10 @@ import AddressForm, {
 import FeedbackModal from "@/components/FeedbackModal";
 import useToggle from "@/hooks/useToggle";
 import { importWallet } from "@/services/WalletServices";
-import { useSelector, useDispatch } from "react-redux";
-import { setWallet, clearWallet } from "@/store/walletSlice";
+import { useDispatch } from "react-redux";
+import { setWallet } from "@/store/walletSlice";
 
-export default function Import() {
+function ImportComp() {
   const [data, setData] = useState<
     PhraseFormData | PrivateKeyFormData | AddressFormData | null
   >(null);
@@ -111,7 +111,10 @@ export default function Import() {
           <div>
             <Tab
               items={[
-                { name: "Phrase", element: <PhraseForm onSubmit={onSubmit} /> },
+                {
+                  name: "Phrase",
+                  element: <PhraseForm onSubmit={onSubmit} />,
+                },
                 {
                   name: "Private Key",
                   element: <PrivateKeyForm onSubmit={onSubmit} />,
@@ -127,5 +130,13 @@ export default function Import() {
       </div>
       <FeedbackModal message={"Successfully Import"} success />
     </div>
+  );
+}
+
+export default function Import() {
+  return (
+    <Suspense>
+      <ImportComp />
+    </Suspense>
   );
 }

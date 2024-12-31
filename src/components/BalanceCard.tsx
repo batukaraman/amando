@@ -1,20 +1,22 @@
+"use client";
+
 import { AiOutlineEye } from "react-icons/ai";
 import { JSX, useEffect, useState } from "react";
 import { getWalletBalance } from "@/services/WalletServices";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 
 export default function BalanceCard(): JSX.Element {
   const [balance, setBalance] = useState<number | null>(null);
-  const { address } = useSelector((state: RootState) => state.wallet);
+  const wallet = useSelector((state: RootState) => state.wallet);
 
   useEffect(() => {
-    if (address) {
+    if (wallet.address) {
       const getBalance = async () =>
-        await getWalletBalance("0xcaBFcebd15A1138E3aC80249F6807905d2c0973f");
+        await getWalletBalance("0xcaBFcebd15A1138E3aC80249F6807905d2c0973f"); // wallet.address
       getBalance().then((res) => setBalance(parseFloat(res)));
     }
-  }, [address]);
+  }, [wallet.address]);
 
   return (
     <div className="flex flex-col gap-2 p-6 bg-black/5 dark:bg-white/5 rounded-xl">

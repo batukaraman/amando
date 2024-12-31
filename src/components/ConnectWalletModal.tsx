@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Modal from "./Modal";
 import AM from "@/icons/coin/AM";
 import Metamask from "@/icons/wallet/Metamask";
@@ -7,7 +7,7 @@ import Trust from "@/icons/wallet/Trust";
 import Coinbase from "@/icons/wallet/Coinbase";
 import { connectWallet } from "@/services/WalletServices";
 import { useSelector, useDispatch } from "react-redux";
-import { setWallet, clearWallet } from "@/store/walletSlice";
+import { setWallet } from "@/store/walletSlice";
 import { RootState } from "@/store";
 import useToggle from "@/hooks/useToggle";
 
@@ -40,6 +40,7 @@ const Item: React.FC<ItemType> = ({ name, connector, Icon }) => {
         setError(`Failed to connect to ${name}.`);
       }
     } catch (err) {
+      console.error(err);
       setError(`An error occurred while connecting to ${name}.`);
     } finally {
       setLoading(false);

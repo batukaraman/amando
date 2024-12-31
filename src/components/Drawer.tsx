@@ -1,4 +1,4 @@
-import { JSX, useState } from "react";
+import { JSX } from "react";
 import { Logo } from "./Logo";
 import MenuItem from "./MenuItem";
 import Home from "@/icons/Home";
@@ -11,14 +11,10 @@ import IPO from "@/icons/IPO";
 import TradeDeal from "./TradeDeal";
 
 export default function Drawer(): JSX.Element {
-  const [isOpen, setIsOpen] = useState(true);
-
   return (
     <div
       className={`w-64 min-h-screen h-full overflow-hidden bg-gray-50 dark:bg-[#141414]
-                transition-transform transform ${
-                  isOpen ? "translate-x-0" : "-translate-x-full"
-                } flex flex-col justify-between`}
+                transition-transform transform flex flex-col justify-between`}
     >
       <div className="flex flex-col gap-6">
         <Logo withName />

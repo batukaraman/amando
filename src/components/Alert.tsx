@@ -1,8 +1,7 @@
 import { IoCloseOutline } from "react-icons/io5";
 import Button from "./Button";
 import Check from "@/icons/Check";
-import { IconProps, IconType } from "@/icons/type";
-import React, { JSX } from "react";
+import { IconType } from "@/icons/type";
 import Infornation from "@/icons/Infornation";
 import Warning from "@/icons/Warning";
 import Error from "@/icons/Error";

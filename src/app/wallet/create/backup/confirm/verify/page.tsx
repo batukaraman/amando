@@ -10,12 +10,11 @@ import useToggle from "@/hooks/useToggle";
 import { useEffect, useState } from "react";
 import {
   reset,
-  setPassword,
   setVerificationIndices,
   verifyMnemonic,
 } from "@/store/walletCreateSlice";
 import { createWallet } from "@/services/WalletServices";
-import { setWallet, clearWallet } from "@/store/walletSlice";
+import { setWallet } from "@/store/walletSlice";
 
 export default function Verify() {
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);

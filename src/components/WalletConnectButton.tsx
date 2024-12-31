@@ -2,7 +2,6 @@ import { truncateAddress } from "@/utils/format";
 import Button from "./Button";
 import Avatar from "@/icons/Avatar";
 import useToggle from "@/hooks/useToggle";
-import { useEffect } from "react";
 
 export default function WalletConnectButton({
   address,
